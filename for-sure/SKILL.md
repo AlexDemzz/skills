@@ -1,47 +1,41 @@
 ---
 name: for-sure
-description: "Use this skill when the user wants to verify whether a coding practice, pattern, or technique is actually a recognized best practice. Triggers on /for-sure or /for-sure <subject>, but also use it when the user questions common wisdom, asks \"is this really a best practice?\", \"should I do X?\", \"is X a good pattern?\", or debates whether an approach is correct — even if they don't explicitly mention \"best practice.\""
+description: "Use this skill when the user wants to know the current best practice for a given subject. Triggers on /for-sure <subject>, but also use it when the user asks \"what's the best practice to do X?\",\"what's the best way to do X?\", \"how should I handle X?\", \"what's the recommended approach for X?\", or needs guidance on the right way to do something — even if they don't explicitly say \"best practice.\""
 argument-hint: <subject>
 user-invocable: true
 allowed-tools: WebSearch, WebFetch
 ---
 
-# For Sure — Best Practice Checker
+# For Sure — Best Practice Finder
 
-Verify whether a claim, pattern, or technique is actually a recognized best practice — backed by real sources.
+Find the current, recognized best practice for a given subject — backed by real sources.
 
 ## How It Works
 
-1. **Identify the subject**: Use the argument if provided (e.g. `/for-sure memoize all React components`). If no argument, look at the current conversation context — what was just discussed, suggested, or implemented.
+1. **Identify the subject**: Use the argument provided (e.g. `/for-sure error handling in TypeScript`). If no argument, look at the current conversation context.
 
-2. **Be skeptical**: Do NOT assume it is a best practice. Your job is to verify, not to confirm. Many common beliefs in software engineering are myths, outdated, or context-dependent.
-
-3. **Search for references**: Use WebSearch to find authoritative sources:
+2. **Search for the best practice**: Use WebSearch to find what authoritative sources recommend right now:
    - Official documentation (React docs, MDN, language specs)
    - Reputable engineering blogs (Vercel, Google, Netflix, Airbnb engineering)
    - Conference talks from recognized experts
    - Well-known books or style guides
    - RFCs or design documents
 
-4. **Evaluate the evidence**: Consider whether:
-   - The practice is universally accepted or context-dependent
-   - It was once a best practice but is now outdated
-   - There are notable counter-arguments or trade-offs
-   - The sources are authoritative or just popular opinion
+3. **Prefer recent sources**: Best practices change. Prioritize sources from the last 1-2 years over older ones. If the best practice has recently shifted, mention what changed and why.
 
-5. **Respond with a structured verdict**:
+4. **Respond with a structured answer**:
 
 ### Response Format
 
-**Subject**: [the practice being evaluated]
+**Subject**: [the topic]
 
-**Verdict**: [one of: Confirmed Best Practice / Context-Dependent / Debatable / Outdated / Myth]
+**Best Practice**: [clear, actionable description of what to do]
 
-**Summary**: [2-3 sentences explaining the verdict]
+**Why**: [1-2 sentences on why this is the recommended approach]
 
 **Sources**:
-- [Source 1 title](URL) — brief note on what it says
-- [Source 2 title](URL) — brief note on what it says
-- [Source 3 title](URL) — brief note on what it says
+- [Source 1 title](URL) — brief note
+- [Source 2 title](URL) — brief note
+- [Source 3 title](URL) — brief note
 
-**Nuance** (if applicable): [any important caveats, trade-offs, or contexts where the advice changes]
+**Watch out**: [common mistakes or outdated advice people still follow for this topic]
