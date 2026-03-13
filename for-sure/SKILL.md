@@ -1,6 +1,6 @@
 ---
 name: for-sure
-description: Verify if something is actually a best practice by searching the internet for authoritative references. Use when the user types /for-sure or /for-sure <subject>.
+description: "Use this skill when the user wants to verify whether a coding practice, pattern, or technique is actually a recognized best practice. Triggers on /for-sure or /for-sure <subject>, but also use it when the user questions common wisdom, asks \"is this really a best practice?\", \"should I do X?\", \"is X a good pattern?\", or debates whether an approach is correct — even if they don't explicitly mention \"best practice.\""
 argument-hint: <subject>
 user-invocable: true
 allowed-tools: WebSearch, WebFetch
