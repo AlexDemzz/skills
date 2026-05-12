@@ -7,38 +7,32 @@ description: Bridge to /agent-browser that forces use of the user's local Chrome
 
 Thin bridge over `/agent-browser`. Attaches `agent-browser` to the user's running Chrome via CDP, then behaves identically to `/agent-browser`.
 
-## Prerequisites
+## Prerequisite
 
-1. `agent-browser` CLI installed and on PATH
-2. User's Chrome has remote debugging enabled at `127.0.0.1:9222`
-   (Chrome → Settings → "Allow remote debugging for this browser instance",
-   or launch Chrome with `--remote-debugging-port=9222`)
+User's Chrome has remote debugging enabled at `127.0.0.1:9222`
+(Chrome → Settings → "Allow remote debugging for this browser instance",
+or launch Chrome with `--remote-debugging-port=9222`).
 
-## Step 1 — verify agent-browser is installed
-
-```bash
-command -v agent-browser >/dev/null 2>&1 && echo "installed" || echo "missing"
-```
-
-If missing: stop and ask the user for permission to install it. Suggested command:
-
-```bash
-npx skills add https://github.com/vercel-labs/agent-browser --skill agent-browser
-```
-
-Do not install silently — installing a new CLI is a system-level change and the user should confirm. Once installed, continue to Step 2.
-
-## Step 2 — attach to user's Chrome
+## Step 1 — attach (always run first)
 
 ```bash
 agent-browser connect 9222
 ```
 
-If this fails: tell the user to enable "Allow remote debugging" in Chrome settings (or launch Chrome with `--remote-debugging-port=9222`). Do not fall back to a fresh headless browser — that defeats the purpose of this skill.
-
-## Step 3 — use agent-browser normally
+## Step 2 — use agent-browser normally
 
 After `connect` succeeds, every subsequent `agent-browser <cmd>` call runs inside the user's Chrome. Follow the full `/agent-browser` skill (snapshot, click, fill, screenshot, etc.). All commands, refs, and patterns are identical.
+
+## Troubleshooting
+
+Only diagnose on actual failure — don't pre-check.
+
+- **`command not found: agent-browser`** → the CLI is not installed. Stop and ask the user for permission to install it:
+  ```bash
+  npx skills add https://github.com/vercel-labs/agent-browser --skill agent-browser
+  ```
+  Don't install silently.
+- **`connect` times out or fails** → Chrome doesn't expose CDP on 9222. Ask the user to enable "Allow remote debugging" in Chrome settings, or relaunch Chrome with `--remote-debugging-port=9222`. Do not fall back to a fresh headless browser — that defeats the purpose of this skill.
 
 ## Why this exists
 
