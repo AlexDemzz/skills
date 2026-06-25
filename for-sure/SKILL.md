@@ -1,8 +1,8 @@
 ---
 name: for-sure
-description: "Use this skill when the user wants to know the current best practice for a given subject. Triggers on /for-sure <subject>, but also use it when the user asks \"what's the best practice to do X?\",\"what's the best way to do X?\", \"how should I handle X?\", \"what's the recommended approach for X?\", or needs guidance on the right way to do something — even if they don't explicitly say \"best practice.\""
+description: Find the current, recognized best practice for a given subject — backed by real sources.
 argument-hint: <subject>
-user-invocable: true
+disable-model-invocation: true
 allowed-tools: WebSearch, WebFetch
 ---
 
