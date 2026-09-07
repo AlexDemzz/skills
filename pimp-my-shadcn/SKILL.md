@@ -1,6 +1,6 @@
 ---
 name: pimp-my-shadcn
-description: Copy a design from a website or screenshots onto a shadcn + Tailwind v4 project — DESIGN.md via impeccable, tokens, restyled primitives, then an iso page that proves the copy.
+description: Copy a design from a website or screenshots onto a shadcn + Tailwind v4 project — DESIGN.md from sampled pixels, tokens, restyled primitives, then an iso page that proves the copy.
 argument-hint: <url | image paths | "reference already in DESIGN.md"> [page to rebuild iso]
 disable-model-invocation: true
 ---
@@ -11,16 +11,16 @@ Four phases, each with its own reference file and its own completion criterion. 
 
 ## Setup
 
-1. Run impeccable's context once: `node ~/.claude/skills/impeccable/scripts/context.mjs` from the project root. It reports whether a `DESIGN.md` already exists. An existing one is shown to the user before anything replaces it.
-2. Run `npx shadcn@latest info --json` (or the project's package runner) from the directory holding `components.json`. In a monorepo that is the ui package, not the root. Note `base` (radix or base), `style`, the css file path, and the installed components. A blank directory is scaffolded first: `pnpm dlx shadcn@latest init --template vite --name <dir> --base base --preset rhea --no-monorepo -y` (presets: nova, vega, maia, lyra, mira, luma, sera, rhea; the CLI rejects `base-nova`), then re-run info.
+1. Check for an existing `DESIGN.md` at the project root. An existing one is shown to the user before anything replaces it.
+2. Run `npx shadcn@latest info --json` (or the project's package runner) from the directory holding `components.json`. In a monorepo that is the ui package, not the root. Note `base` (base, radix or aria), `style`, the css file path, and the installed components. A blank directory is scaffolded first with the named style closest to the reference, following [reference/init.md](reference/init.md), then info is re-run.
 3. Read `DESIGN.md`, the css file with the shadcn variables, and every installed primitive under the components directory before deciding anything. The primitives are already bound to the shadcn variables; that binding is what makes the whole method work.
 
 ## Grill before charting
 
-Six decisions shape every later edit. Ask them with a recommended answer each, in one round, and record the answers in the ledger. When the user is not reachable, take the recommended answer and write it down as an assumption. `context.mjs` prints an `AUTONOMY_DIRECTIVE_CHECK` asking you to probe first; with the user out of the loop this skill's rule wins, and every decision you answer yourself lands in the ledger as an assumption.
+Six decisions shape every later edit. Ask them with a recommended answer each, in one round, and record the answers in the ledger. When the user is not reachable, take the recommended answer and write it down as an assumption.
 
 1. **Fidelity.** Iso copy (recommended) or adaptation? Iso means the reference wins every disagreement with taste.
-2. **Where the brand accent lands.** Look at the reference's primary button before answering: if it is ink or white, the accent is *not* `--primary`. Kwern's lime went to `--sidebar-primary` (avatar only) and `--primary` stayed ink. Zero new colour variables unless the reference has a hue shadcn has no slot for (status tones, a canvas behind an app frame).
+2. **Where the brand accent lands.** Look at the reference's primary button before answering: if it is ink or white, the accent is *not* `--primary`. A lime brand on an ink-button reference goes to `--sidebar-primary` (avatar only) and `--primary` stays ink. Zero new colour variables unless the reference has a hue shadcn has no slot for (status tones).
 3. **Scope.** Which screens of the reference the system must cover. Default: all of them.
 4. **The override rule.** Every look lives in the primitives; the consumer writes layout classes only (`flex`, `gap`, `grid`, `max-w`, `p-`). A consumer override is allowed only when a phase records it in the ledger with the reason. That list feeds the ADR.
 5. **The iso page.** Which reference screen the final proof rebuilds. Pick the one that exercises the most primitives (a settings or integration page beats a hero).
@@ -28,9 +28,9 @@ Six decisions shape every later edit. Ask them with a recommended answer each, i
 
 ## Phase 1 — Capture the reference into DESIGN.md
 
-Read [reference/capture.md](reference/capture.md). Impeccable does not fetch URLs: you scrape the reference yourself (live DOM, or the images of a case study), sample exact pixels, then write `DESIGN.md` and `.impeccable/design.json` in impeccable's `document` format with a `shadcnMapping` block. Both modes are captured when the reference has both.
+Read [reference/capture.md](reference/capture.md). Scrape the reference yourself (live DOM, or the images of a case study), sample exact pixels, then write `DESIGN.md` with its `shadcnMapping` block. Both modes are captured when the reference has both.
 
-Done when `context.mjs` loads the new `DESIGN.md` without parse errors, every colour in the frontmatter is a sampled value (sizes may be estimates and are labelled so), the sidecar carries a `shadcnMapping` pair for every shadcn variable, and the reference renders are saved under `.scratch/design-ref/<slug>/` for the later phases.
+Done when `scripts/check-design.mjs` passes on `DESIGN.md` and the css file, sizes that are estimates are labelled so under `source`, and the reference renders are saved under `.scratch/design-ref/<slug>/` for the later phases.
 
 ## Phase 2 — Tokens
 
@@ -46,7 +46,7 @@ Done when every existing screen still renders, typecheck and the seam tests are 
 
 ## Phase 4 — The iso page
 
-Read [reference/iso-page.md](reference/iso-page.md). **Before writing it**, list the primitives and variants the page will use and get the list confirmed by the user. Build the page from primitives and layout Tailwind. Compare with the reference through `/impeccable critique`; every deviation is either fixed in a primitive or recorded as a consumer override. Extend the [variant substance](#variant-not-override) table with whatever the page added, then answer the question the phase asks: *are the tokens and primitives enough?*
+Read [reference/iso-page.md](reference/iso-page.md). **Before writing it**, list the primitives and variants the page will use and get the list confirmed by the user. Build the page from primitives and layout Tailwind. Compare with the reference side by side; every deviation is either fixed in a primitive or recorded as a consumer override. Extend the [variant substance](#variant-not-override) table with whatever the page added, then answer the question the phase asks: *are the tokens and primitives enough?*
 
 Done when the page sits beside the reference in light and dark and the ledger holds the two lists: primitives that had to change, overrides the consumer needed.
 

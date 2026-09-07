@@ -9,7 +9,7 @@ Everything the iso page and the scope need that is not installed yet, through th
 <runner> shadcn@latest add <a> <b> <c> -y -o
 ```
 
-No preset flag: the style comes from `components.json`. Transitive overwrites (button, input, dialog pulled in by sidebar or command) are checked with `shadcn diff <name>` before accepting; run the install **before** restyling so the registry cannot clobber your edits. For a complex component the registry lacks, `shadcn search` and the third-party registries (`"registries": {"@reui": "https://reui.io/r/{name}.json"}` in `components.json`, then `add @reui/<name>`), never a hand-written primitive. Registry files import `cn` from the `cn` package and may open with `"use client"`; the shadcn vite and rhea templates ship that package, so the imports stand. Only a project whose `cn` lives elsewhere (`@acme/ui/lib/utils`) rewrites them, with a targeted `sed` on the new files, then the project's formatter. Radix-versus-base matters: read `base` from `shadcn info` and use `render` (base) or `asChild` (radix) accordingly.
+No preset flag: the style comes from `components.json`. Transitive overwrites (button, input, dialog pulled in by sidebar or command) are checked with `shadcn diff <name>` before accepting; run the install **before** restyling so the registry cannot clobber your edits. For a complex component the registry lacks, `shadcn search` and the third-party registries (`"registries": {"@reui": "https://reui.io/r/{name}.json"}` in `components.json`, then `add @reui/<name>`), never a hand-written primitive. Registry files import `cn` from the `cn` package and may open with `"use client"`; the shadcn templates ship that package, so the imports stand. Only a project whose `cn` lives elsewhere (`@acme/ui/lib/utils`) rewrites them, with a targeted `sed` on the new files, then the project's formatter. Radix-versus-base matters: read `base` from `shadcn info` and use `render` (base) or `asChild` (radix) accordingly.
 
 ## Restyle
 
@@ -20,7 +20,7 @@ Inside the components directory only. Two moves:
 
 Variant substance sorts what survives: button `icon-round` = `icon-lg` minus `rounded-lg`, one call site → a `className` on the consumer; item size `sm` whose string equals `default` → fold into the base; tabs `line` nobody renders → delete; badge `new` (alert wash plus text, three call sites, a role the reference names) → keep, one concern and all.
 
-The usual list, in the order the iso page needs them: button (sizes, secondary with hairline, ghost muted, destructive fill, 2px ring with offset), badge, card and card header, input, select, textarea, switch, tabs, tooltip, separator, item (side padding drops to 0 inside a padded card: `in-data-[slot=card-content]:px-0`), field rows (a `FieldLabel` wrapping a `Field` is the clickable row: radius, hairline, tint when checked), sheet, dialog, popover, dropdown menu, command, kbd, sidebar menu button (active pill on `bg-accent`, weight unchanged), the data grid (header height and tint, row height, soft dividers), and the compositions the reference has and shadcn does not (an app frame on a canvas, a hero band). Compositions are new files beside the primitives, built from tokens only.
+The usual list, in the order the iso page needs them: button (sizes, secondary with hairline, ghost muted, destructive fill, 2px ring with offset), badge, card and card header, input, select, textarea, switch, tabs, tooltip, separator, item (side padding drops to 0 inside a padded card: `in-data-[slot=card-content]:px-0`), field rows (a `FieldLabel` wrapping a `Field` is the clickable row: radius, hairline, tint when checked), sheet, dialog, popover, dropdown menu, command, kbd, sidebar menu button (active pill on `bg-accent`, weight unchanged), the data grid (header height and tint, row height, soft dividers), and the compositions the reference has and shadcn does not (a hero band, a brand mark tile). Compositions are new files beside the primitives, built from tokens only.
 
 **Imagery does not flip.** A primitive or composition carrying a photo or a product screenshot keeps its surface literal (`bg-white text-neutral-900`) and takes only tokens that read the same in both modes: the picture is part of the picture, not the chrome. A `.dark` value that inverts a chip or a label (a plum chip that goes white) is caught by reading the showcase in both modes before Phase 4, not by the iso page.
 
@@ -42,7 +42,7 @@ Exporting the variants from a ui file is expected, and `eslint-plugin-react-refr
 
 ## The showcase
 
-`/dev/primitives` on the project's routing convention: one section per primitive showing every variant and size, the compositions with real-looking copy, a dialog trigger, a data grid with five rows, all wrapped in the app frame when there is one. Gate it the way the project gates devtools, so a production build drops it:
+`/dev/primitives` on the project's routing convention: one section per primitive showing every variant and size, the compositions with real-looking copy, a dialog trigger, a data grid with five rows. Gate it the way the project gates devtools, so a production build drops it:
 
 ```tsx
 component: import.meta.env.DEV ? PrimitivesPage : () => null

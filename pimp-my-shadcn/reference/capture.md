@@ -1,12 +1,14 @@
 # Phase 1 — Capture the reference
 
-Impeccable's `document` writes DESIGN.md from a project's own code and `extract` consolidates a project's own patterns. Neither fetches a URL. The scraping is yours; the **format** is impeccable's, so read `~/.claude/skills/impeccable/reference/document.md` once for the frontmatter schema, the eight sections and the sidecar schema, then write both files by hand.
+Scrape the reference yourself, sample exact pixels, then write `DESIGN.md`: the one document every later phase reads, and the visual authority once written.
 
 ## Get the renders
 
 Save everything under `.scratch/design-ref/<slug>/`, numbered, and keep it out of git unless the project already tracks `.scratch`.
 
 **A case study of images** (Framer or Webflow portfolio pages, Dribbble, Behance): fetch the HTML with `curl -sL`, grep the image URLs, download each at full resolution (Framer CDN: strip the `?width=` and append `?scale-down-to=2048`; other CDNs: drop the resize params). Strip the tags to read the copy. Read every image with the Read tool; the light and dark screens are usually separate images.
+
+**Staging is not design.** A case study mounts each screen for display: a rounded window inset on a grey or coloured desk, a browser bar, a device bezel, a drop shadow, a gradient backdrop. The tell is repetition: the same mount around every screen, screen edges cut the same way. Everything outside the screen's own edge is the portfolio's staging and never enters `DESIGN.md`: no backdrop colour, no window radius, no inset, no mount shadow. Sample and measure inside the screen only, as if it filled a viewport. A product that draws its own frame shows it on the live site; a screenshot cannot prove it.
 
 **A live site**: drive it with `agent-browser` (Playwright under a CLI, no extension needed):
 
@@ -21,7 +23,7 @@ agent-browser set media dark && agent-browser screenshot --full /abs/path/<dir>/
 
 The screenshot path is resolved against the CLI's own cwd, not yours: always pass it absolute.
 
-Pull the computed truth the DOM gives for free with `agent-browser eval "<js>"`: read `:root` custom properties from every stylesheet rule (a site built on tokens hands you its palette by name), then collect, for `body`, headings, paragraphs, links, buttons, inputs, cards and nav items, the computed `color`, `background-color`, `border-color`, `border-radius`, `font-family`, `font-size`, `font-weight`, `line-height`, `letter-spacing`, `box-shadow`, `padding`, `height`. Save the JSON beside the renders. A site with no dark scheme is captured in light only; say so in the sidecar.
+Pull the computed truth the DOM gives for free with `agent-browser eval "<js>"`: read `:root` custom properties from every stylesheet rule (a site built on tokens hands you its palette by name), then collect, for `body`, headings, paragraphs, links, buttons, inputs, cards and nav items, the computed `color`, `background-color`, `border-color`, `border-radius`, `font-family`, `font-size`, `font-weight`, `line-height`, `letter-spacing`, `box-shadow`, `padding`, `height`. Save the JSON beside the renders. A site with no dark scheme is captured in light only; say so under `source`.
 
 **Fallback when no browser tool answers**: headless Chrome takes the render alone (no DOM readout): `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars --disable-gpu --force-device-scale-factor=1 --window-size=1440,4000 --virtual-time-budget=4000 --screenshot=<file>.png <url>`.
 
@@ -38,46 +40,49 @@ Colours are never eyeballed. With ImageMagick (`magick`), on each render:
 
 The brand's famous hex is not automatically the primary: it is often a pressed state or a band behind a section. Take the live computed style of the actual primary button (`agent-browser get styles "<selector>"`) and let that decide. Slack's primary button is `#611F69`; the `#4A154B` everyone quotes is its pressed state and its dark band. Record the choice as an assumption in the ledger.
 
-Run one `LIGHT` block and one `DARK` block. Sizes (font sizes, row heights, paddings, radii) are measured from the renders with the crop tool and are **estimates**: say so in the sidecar's `extensions.source.note`.
+Run one `LIGHT` block and one `DARK` block. Sizes (font sizes, row heights, paddings, radii) are measured from the renders with the crop tool and are **estimates**: say so under `source`.
 
 ## Write DESIGN.md
 
-The frontmatter is normative: `colors` with descriptive slugs (`ink`, `paper`, `paper-tint`, `hairline`, `signal-blue`, `go-green`…) and a `-dark` suffixed twin for every neutral that flips; `typography` roles with family, size, weight, line-height, tracking; `rounded` and `spacing` scales as the reference actually uses them; `components` for button variants, input, card, card-header, nav-item and nav-item-active, badges, chip, tooltip, each referencing `{colors.x}` and `{rounded.y}`.
+One file at the project root, YAML frontmatter and a Markdown body. The frontmatter is normative and every colour in it is a sampled hex:
 
-The body follows the eight canonical sections. What earns its place there is what a later phase will need to decide a class: which surface each tonal step is used for, the named rules (signal-only colour, two weights, no shadows, wash pairing), the sizes of buttons, rows, headers, the sidebar width, the frame inset, the focus treatment, and the Do's and Don'ts.
-
-## Write the sidecar
-
-`.impeccable/design.json` (schemaVersion 2) carries `extensions.source` (where the renders came from, which screens, what is sampled versus estimated), `colorMeta` with tonal ramps, `typographyMeta`, layout metrics (row heights, sidebar width, frame inset), five to ten components as self-contained HTML + CSS, the narrative copied from the body, and the block the next phase runs on:
-
-```json
-"shadcnMapping": {
-  "note": "Light / dark pairs for <css file path>.",
-  "--background": ["#FFFFFF", "#171616"],
-  "--foreground": ["#1D1D1D", "#E8E9E9"],
-  "--card": [...], "--popover": [...],
-  "--primary": [...], "--primary-foreground": [...],
-  "--secondary": [...], "--secondary-foreground": [...],
-  "--muted": [...], "--muted-foreground": [...],
-  "--accent": [...], "--accent-foreground": [...],
-  "--destructive": [...], "--border": [...], "--input": [...], "--ring": [...],
-  "--chart-1": [...], "--chart-2": [...],
-  "--sidebar": [...], "--sidebar-foreground": [...], "--sidebar-primary": [...],
-  "--sidebar-accent": [...], "--sidebar-accent-foreground": [...], "--sidebar-border": [...], "--sidebar-ring": [...],
-  "--radius": "0.5rem",
-  "--color-success": [...], "--color-success-wash": [...],
-  "--color-warning": [...], "--color-warning-wash": [...],
-  "--color-info": [...], "--color-info-wash": [...]
-}
+```yaml
+---
+source:
+  reference: <url or "case study: <url>">
+  renders: .scratch/design-ref/<slug>/
+  sampled: colours          # magick point samples
+  estimated: sizes, radii   # measured on the renders
+  modes: light, dark        # or "light only"
+colors:                     # descriptive slugs; a -dark twin for every neutral that flips
+  ink: "#1D1D1D"
+  paper: "#FFFFFF"
+  paper-dark: "#171616"
+  signal-blue: "#2F6BFF"
+typography:                 # one entry per role: family, size, weight, line-height, tracking
+  body: { family: Inter, size: 14px, weight: 400, line-height: 20px }
+  heading: { family: Inter, size: 22px, weight: 500, line-height: 28px, tracking: -0.01em }
+rounded: { control: 8px, card: 12px, pill: 9999px }
+spacing: { row: 34px, control: 32px, gutter: 24px }
+components:                 # button variants, input, card, card-header, nav-item, nav-item-active, badge, chip, tooltip
+  button-primary: { fill: "{colors.ink}", text: "{colors.paper}", radius: "{rounded.pill}", height: 32px }
+shadcnMapping:              # light / dark pair for every variable the css file declares
+  "--background": ["#FFFFFF", "#171616"]
+  "--foreground": ["#1D1D1D", "#E8E9E9"]
+  "--primary": ["#1D1D1D", "#E8E9E9"]
+  "--radius": "0.5rem"
+  "--color-success": ["#1F8A4C", "#5BD48A"]
+---
 ```
 
-Every shadcn variable the project's css file declares gets a pair; the grilling's accent decision fixes `--primary` and where the brand hue goes. Slots with no reference evidence (`--chart-3..5`) take the reference's neutrals and say so.
+`shadcnMapping` is the block Phase 2 runs on: every variable the project's css file declares in `:root` gets a pair, the grilling's accent decision fixes `--primary` and where the brand hue goes, new tones take a `--color-<name>` key, and a slot with no reference evidence (`--chart-3..5`) takes the reference's neutrals with a comment saying so.
+
+The body carries what a later phase needs to decide a class, under these headings: **Overview** (the reference in one paragraph), **Colour** (which surface each tonal step is used for, the named rules: signal-only colour, wash pairing), **Typography** (the weights in use and where), **Shape and depth** (radius families, shadows or their absence), **Layout** (sidebar width, row heights, header height, content max-width), **Components** (sizes and states of buttons, inputs, rows, badges), **States** (focus, hover, active, disabled), **Do / Don't**.
 
 ## Validate
 
 ```
-node ~/.claude/skills/impeccable/scripts/context.mjs | grep -Ei "design|stale|warn|error"
-node -e "import('$HOME/.claude/skills/impeccable/scripts/lib/design-parser.mjs').then(m => { const r = m.parseDesignMd(require('fs').readFileSync('DESIGN.md','utf8')); console.log(Object.keys(r.frontmatter.colors).length, 'colors', Object.keys(r)) })"
+node <skill base directory>/scripts/check-design.mjs DESIGN.md <css file>
 ```
 
-`parseDesignMd` returns `frontmatter`, `colors`, `typography`, `layout`, `components`, `dosDonts`; a frontmatter it cannot read shows up as a missing key, so the count of colours is the check. Commit `DESIGN.md` and the sidecar; if the repo formats Markdown, exempt `DESIGN.md` (reflowing merges its hand-wrapped lines).
+It reads the frontmatter, checks the required keys, that every colour is a six-digit hex, that every `{colors.x}` / `{rounded.y}` reference resolves, that every variable in the css file's `:root` has its light/dark pair in `shadcnMapping`, and that the body carries the eight headings. Silence is the pass. Commit `DESIGN.md`; if the repo formats Markdown, exempt it (reflowing merges its hand-wrapped lines).

@@ -31,5 +31,5 @@ After the write, open the app in both modes and look at every secondary surface:
 
 - Both modes render with the new palette (screenshot the login or the home page in each, keep them in `.scratch/design-check/tokens/`).
 - Lint, format and typecheck pass.
-- `git diff --stat` shows the css file, `DESIGN.md`, the sidecar and the ledger. No component file.
+- `git diff --stat` shows the css file, `DESIGN.md` and the ledger. No component file.
 - Ledger entry: the variable-by-variable table, the deviations from `shadcnMapping` with their reasons, the slots that carry placeholder neutrals.
