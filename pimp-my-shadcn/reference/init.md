@@ -1,19 +1,8 @@
 # Scaffolding a blank project
 
-Only for a directory with no `components.json`. An existing project keeps its base, style and template: read them from `shadcn info --json` and move on.
+Only for a directory with no `components.json`. An existing project keeps its base, style and template.
 
-## The command
-
-```
-<runner> shadcn@latest init --template <template> --name <dir> --base <base> --preset <style> --no-monorepo -y
-```
-
-- `<runner>`: the package runner the project (or the user) uses: `npx`, `pnpm dlx`, `bunx --bun`.
-- `<template>`: `next`, `vite`, `start`, `react-router`, `astro`, `laravel`. A throwaway copy uses `vite` (tested); a real project uses its framework.
-- `<base>`: `base` (recommended by the CLI), `radix`, or `aria`. Presets do not encode the base, so the flag is always passed.
-- `<style>`: one of the named styles below. Named styles only: the CLI rejects `base-nova`-style names, and the `/shadcn` skill forbids building `ui.shadcn.com/init?…` URLs by hand. A preset code from the builder (`--preset a2r6bw`) is accepted when the user hands one over.
-
-Then re-run `shadcn info --json`.
+The shadcn skill runs `init`; this file only picks the `--preset` style.
 
 ## Picking the style
 

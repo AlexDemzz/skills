@@ -5,26 +5,25 @@ argument-hint: <url | image paths | "reference already in DESIGN.md"> [page to r
 disable-model-invocation: true
 ---
 
-Take a design that exists somewhere else — a live website, a case study made of screenshots, a folder of images — and make this project's shadcn primitives wear it, **iso**: same colours, radii, type, spacing, states, in light and dark. The consumer app never restyles; it only lays out. The proof is a page rebuilt from the primitives alone that a stranger cannot tell from the reference.
+Take a design that exists somewhere else — a live website, a case study made of screenshots, a folder of images — and make this project's shadcn primitives wear it, **iso**: same colours, radii, type, spacing, states, in light and dark, and the reference wins every disagreement with taste. The consumer app never restyles; it only lays out. The proof is a page rebuilt from the primitives alone that a stranger cannot tell from the reference.
 
 Four phases, each with its own reference file and its own completion criterion. Work them in order; each one is a commit. On a project with an issue tracker, they are the four tickets of a wayfinder map (see [Tracker](#tracker)); otherwise the ledger is a Markdown file.
 
 ## Setup
 
-1. Check for an existing `DESIGN.md` at the project root. An existing one is shown to the user before anything replaces it.
-2. Run `npx shadcn@latest info --json` (or the project's package runner) from the directory holding `components.json`. In a monorepo that is the ui package, not the root. Note `base` (base, radix or aria), `style`, the css file path, and the installed components. A blank directory is scaffolded first with the named style closest to the reference, following [reference/init.md](reference/init.md), then info is re-run.
+1. Load the `shadcn` skill with the Skill tool, from the directory holding `components.json` (in a monorepo, the ui package). It injects the project context and owns the CLI, the composition rules and the styling rules for every later phase. A directory without `components.json` is scaffolded first, style chosen by [reference/init.md](reference/init.md), then `info --json` is re-run.
+2. Check for an existing `DESIGN.md` at the project root. An existing one is shown to the user before anything replaces it.
 3. Read `DESIGN.md`, the css file with the shadcn variables, and every installed primitive under the components directory before deciding anything. The primitives are already bound to the shadcn variables; that binding is what makes the whole method work.
 
 ## Grill before charting
 
-Six decisions shape every later edit. Ask them with a recommended answer each, in one round, and record the answers in the ledger. When the user is not reachable, take the recommended answer and write it down as an assumption.
+Five decisions shape every later edit. Ask them with a recommended answer each, in one round, and record the answers in the ledger. When the user is not reachable, take the recommended answer and write it down as an assumption.
 
-1. **Fidelity.** Iso copy (recommended) or adaptation? Iso means the reference wins every disagreement with taste.
-2. **Where the brand accent lands.** Look at the reference's primary button before answering: if it is ink or white, the accent is *not* `--primary`. A lime brand on an ink-button reference goes to `--sidebar-primary` (avatar only) and `--primary` stays ink. Zero new colour variables unless the reference has a hue shadcn has no slot for (status tones).
-3. **Scope.** Which screens of the reference the system must cover. Default: all of them.
-4. **The override rule.** Every look lives in the primitives; the consumer writes layout classes only (`flex`, `gap`, `grid`, `max-w`, `p-`). A consumer override is allowed only when a phase records it in the ledger with the reason. That list feeds the ADR.
-5. **The iso page.** Which reference screen the final proof rebuilds. Pick the one that exercises the most primitives (a settings or integration page beats a hero).
-6. **Where the proofs live.** A `/dev/primitives` showcase and a `/dev/<page>` mock-up on the project's routing convention, gated the way the project gates devtools so a production build drops them. A template with no router uses `?page=` and `?theme=` on its single route; with no production build there is nothing to gate.
+1. **Where the brand accent lands.** Look at the reference's primary button before answering: if it is ink or white, the accent is *not* `--primary`. A lime brand on an ink-button reference goes to `--sidebar-primary` (avatar only) and `--primary` stays ink. Zero new colour variables unless the reference has a hue shadcn has no slot for (status tones).
+2. **Scope.** Which screens of the reference the system must cover. Default: all of them.
+3. **The override rule.** Every look lives in the primitives; the consumer writes layout classes only (`flex`, `gap`, `grid`, `max-w`, `p-`). A consumer override is allowed only when a phase records it in the ledger with the reason. That list feeds the ADR.
+4. **The iso page.** Which reference screen the final proof rebuilds. Pick the one that exercises the most primitives (a settings or integration page beats a hero).
+5. **Where the proofs live.** A `/dev/primitives` showcase and a `/dev/<page>` mock-up on the project's routing convention, gated the way the project gates devtools so a production build drops them. A template with no router uses `?page=` and `?theme=` on its single route; with no production build there is nothing to gate.
 
 ## Phase 1 — Capture the reference into DESIGN.md
 
@@ -40,7 +39,7 @@ Done when the existing app renders in both modes with the new palette, lint and 
 
 ## Phase 3 — Primitives
 
-Read [reference/primitives.md](reference/primitives.md). Install what the iso page and the scope need through the `/shadcn` skill (registry first, third-party registries second, hand-written never). Restyle inside the primitives only: base class strings for what every instance shares, CVA variants for what the reference names (a tinted card header, a status badge, a chip, a count pill). Seam tests assert on the variant class strings. Build the `/dev/primitives` showcase, screenshot every primitive in light and dark, attach the screenshots to the ledger.
+Read [reference/primitives.md](reference/primitives.md). Install what the iso page and the scope need with the shadcn skill's add workflow; a primitive is never hand-written. Restyle inside the primitives only: base class strings for what every instance shares, CVA variants for what the reference names (a tinted card header, a status badge, a chip, a count pill). Seam tests assert on the variant class strings. Build the `/dev/primitives` showcase, screenshot every primitive in light and dark, attach the screenshots to the ledger.
 
 Done when every existing screen still renders, typecheck and the seam tests are green, the light and dark screenshots are on the ledger, and the [variant substance](#variant-not-override) table covers every variant added or rewritten.
 
@@ -72,4 +71,4 @@ Data tables use a TanStack-bound grid from a registry (ReUI Data Grid is the pre
 
 ## Tracker
 
-On a repo with `docs/agents/issue-tracker.md`, chart the four phases as a wayfinder map with `/mattpocock-skills:wayfinder`: one `research` ticket (which primitives exist for this project's shadcn base, install commands, tone-token method), then `task` tickets Tokens and Primitives, then a `prototype` ticket for the iso page, blocked in that order. Each phase's resolution is a comment on its ticket and one line in the map's Decisions-so-far. Without a tracker, the ledger is `docs/design/<slug>-copy.md`: a header naming the reference, the renders folder and the visual authority; a **Grilling** section with the six answers; then one section per phase holding what was done, the facts later phases depend on, and what was left. Committed screenshots go under `docs/design/screenshots/`.
+On a repo with `docs/agents/issue-tracker.md`, chart the four phases as a wayfinder map with `/mattpocock-skills:wayfinder`: one `research` ticket (which primitives exist for this project's shadcn base, install commands, tone-token method), then `task` tickets Tokens and Primitives, then a `prototype` ticket for the iso page, blocked in that order. Each phase's resolution is a comment on its ticket and one line in the map's Decisions-so-far. Without a tracker, the ledger is `docs/design/<slug>-copy.md`: a header naming the reference, the renders folder and the visual authority; a **Grilling** section with the five answers; then one section per phase holding what was done, the facts later phases depend on, and what was left. Committed screenshots go under `docs/design/screenshots/`.

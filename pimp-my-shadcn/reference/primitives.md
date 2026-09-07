@@ -2,14 +2,7 @@
 
 ## Install
 
-Everything the iso page and the scope need that is not installed yet, through the `/shadcn` skill, from the directory holding `components.json`:
-
-```
-<runner> shadcn@latest add <a> <b> <c> --dry-run     # read the file list: new versus overwritten
-<runner> shadcn@latest add <a> <b> <c> -y -o
-```
-
-No preset flag: the style comes from `components.json`. Transitive overwrites (button, input, dialog pulled in by sidebar or command) are checked with `shadcn diff <name>` before accepting; run the install **before** restyling so the registry cannot clobber your edits. For a complex component the registry lacks, `shadcn search` and the third-party registries (`"registries": {"@reui": "https://reui.io/r/{name}.json"}` in `components.json`, then `add @reui/<name>`), never a hand-written primitive. Registry files import `cn` from the `cn` package and may open with `"use client"`; the shadcn templates ship that package, so the imports stand. Only a project whose `cn` lives elsewhere (`@acme/ui/lib/utils`) rewrites them, with a targeted `sed` on the new files, then the project's formatter. Radix-versus-base matters: read `base` from `shadcn info` and use `render` (base) or `asChild` (radix) accordingly.
+Everything the iso page and the scope need that is not installed yet, through the shadcn skill's add workflow. Two rules on top of it: the install runs **before** restyling so the registry cannot clobber your edits, and a component the shadcn registry lacks comes from a third-party registry (ReUI is the precedent), never from a hand-written primitive.
 
 ## Restyle
 
