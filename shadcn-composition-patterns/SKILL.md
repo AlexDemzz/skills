@@ -1,6 +1,6 @@
 ---
 name: shadcn-composition-patterns
-description: Compound-component laws for shadcn projects. Use when creating a reusable component in a project with components.json, refactoring a component with boolean or slot props (icon, RightComponent, borderless), making a card or item polymorphic (render / asChild), or reviewing a component file against shadcn conventions.
+description: Compound-component laws for shadcn projects. Use whenever a React component is created, modified or audited in a project that has components.json.
 argument-hint: <component to build | file to review>
 ---
 
