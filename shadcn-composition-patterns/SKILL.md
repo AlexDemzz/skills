@@ -1,8 +1,7 @@
 ---
 name: shadcn-composition-patterns
-description: Build or review a compound component on shadcn primitives with the shadcn rigour — data-slot, spread props, className variants, polymorphic root.
+description: Compound-component laws for shadcn projects. Use when creating a reusable component in a project with components.json, refactoring a component with boolean or slot props (icon, RightComponent, borderless), making a card or item polymorphic (render / asChild), or reviewing a component file against shadcn conventions.
 argument-hint: <component to build | file to review>
-disable-model-invocation: true
 ---
 
 Build a component the way shadcn builds its own — a **compound**: one file, one prefixed family of parts, each part a single element the consumer styles and replaces from the call site. The same laws grade an existing component in review.
