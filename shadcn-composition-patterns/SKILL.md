@@ -10,25 +10,24 @@ The React theory (why compounds, why no boolean props, lifting state into a prov
 
 ## Setup
 
-1. Load the `shadcn` skill with the Skill tool, from the directory holding `components.json` (in a monorepo, the ui package). It injects the project context, owns the CLI and the styling rules, and its `base` field (`base` or `radix`) decides the polymorphism law below.
+1. Read the project `base` from the `package.json` beside `components.json` (in a monorepo, the ui package): any `@base-ui` dependency → `base`; otherwise a `radix-ui` or `@radix-ui/*` dependency → `radix`. It decides the polymorphism law below.
 2. Read the argument. A component to build → **build** mode; a file path → **review** mode, every law below graded against the file.
 3. `ls` the components directory before writing anything: the need may already be a primitive or an existing compound. In build mode a match ends the task with a pointer to it.
 
 ## Placement
 
 - Used in ONE consumer → declared in that consumer's file. No new file.
-- Shared → the project's existing component convention (a design-system folder beside `ui/`, a feature folder). Without one, `components/ui/` beside the shadcn primitives.
+- Shared → the project's existing component convention (a design-system folder beside `ui/`, a feature folder). Without one, beside the shadcn primitives — use the actual `aliases` path, never hardcode.
 
 ## Laws
 
 Every law is checkable on the file alone.
 
-- **Compound, prefixed named exports.** `export { Navbar, NavbarTitle, NavbarActions }` — one root plus parts, the prefix carried by every part. The consumer composes the tree; the component owns no layout decision the consumer could make.
+- **Compound, prefixed named exports.** `export { Navbar, NavbarTitle, NavbarActions }` — one root plus parts, the prefix carried by every part, each a top-level export rather than a member of a namespace object (`Navbar.Title`).
 - **Each part is one element.** Root element carries `data-slot="<part-kebab>"`, `className={cn(base, className)}` and `{...props}` spread last. Props typed from the rendered element: `React.ComponentProps<"nav">`, or `React.ComponentProps<typeof Button>` when the part wraps a primitive. Spacing between parts lives on the parent's classes, so a part renders its element and nothing around it.
-- **`children` over slot props.** Content the consumer decides (an icon, a trailing action, a title) arrives as `children`, with a sensible default when the part is empty. A prop like `icon`, `RightComponent` or `renderTitle` is a part waiting to be named.
-- **Variants at the call site.** A one-off look is `className` from the consumer. A `cva` `variant`/`size` on a home compound is earned only when the look is purely visual AND each variant has several consumers; a variant with one consumer is that consumer's `className`. A visual toggle expressed as a boolean prop (`borderless`, `compact`) fails this law.
+- **Variants at the call site.** A one-off look is `className` from the consumer. A `cva` `variant`/`size` on a home compound is earned only when the look is purely visual AND each variant has several consumers; a variant with one consumer is that consumer's `className`. A variant prop is a plain union of literals (`variant: "dark" | "light"`) and the props type stays flat; a prop that only makes sense for one variant belongs to a part of its own, so a discriminated union over `variant` fails this law too.
 - **Polymorphic root, navigation-agnostic.** Every part that a consumer may turn into a link or a button takes the element from the consumer, defaulting to a plain tag. A part backed by a shadcn primitive already has it (`render` on base, `asChild` on radix). A custom part gets it per the project `base`:
-  - `base` → `useRender` + `mergeProps` from `@base-ui/react`.
+  - `base` → `useRender` + `mergeProps` from `@base-ui/react`. A bare `<a>` arrives through the callback form, `render={(props) => <a {...props} href={url} />}`: the spread carries the children, so the a11y anchor-content lint (Biome `useAnchorContent`, ESLint `anchor-has-content`) passes. The element form `render={<a href={url} />}` trips that lint, and suppressing it fails this law.
   - `radix` → `Slot` from `@radix-ui/react-slot` behind an `asChild` prop.
   Link inference stays out of the component: no auto-`<Link>`, no anchor derived from a `url` data prop. Interactive styling gates on the rendered tag — `[a,button]:hover:bg-foreground/5` activates only once the consumer rendered an anchor or a button.
 - **Styling from outside targets `data-slot`.** The consumer restyles a part with `[&_[data-slot=item-title]]:font-semibold` on the root's `className`. Tailwind v4 needs the bracket form for custom data attributes (`data-[state=open]:…`); a bare `data-state-open:` variant fails silently.
