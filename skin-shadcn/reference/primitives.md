@@ -2,9 +2,9 @@
 
 ## Install
 
-Everything the iso page and the scope need that is not installed yet, through the shadcn skill's add workflow. Two rules on top of it: the install runs **before** restyling so the registry cannot clobber your edits, and a component the shadcn registry lacks comes from a third-party registry (ReUI is the precedent), never from a hand-written primitive.
+Everything the iso page and the scope need that is not installed yet, through the shadcn skill's add workflow. Two rules on top of it: the install runs **before** skinning so the registry cannot clobber your edits, and a component the shadcn registry lacks comes from a third-party registry (ReUI is the precedent), never from a hand-written primitive.
 
-## Restyle
+## Skin
 
 Inside the components directory only. Two moves:
 
@@ -15,13 +15,15 @@ Variant substance sorts what survives: button `icon-round` = `icon-lg` minus `ro
 
 The usual list, in the order the iso page needs them: button (sizes, secondary with hairline, ghost muted, destructive fill, 2px ring with offset), badge, card and card header, input, select, textarea, switch, tabs, tooltip, separator, item (side padding drops to 0 inside a padded card: `in-data-[slot=card-content]:px-0`), field rows (a `FieldLabel` wrapping a `Field` is the clickable row: radius, hairline, tint when checked), sheet, dialog, popover, dropdown menu, command, kbd, sidebar menu button (active pill on `bg-accent`, weight unchanged), the data grid (header height and tint, row height, soft dividers), and the compositions the reference has and shadcn does not (a hero band, a brand mark tile). Compositions are new files beside the primitives, built from tokens only.
 
+**Tables.** Data tables use a TanStack-bound grid from a registry (ReUI Data Grid is the precedent), skinned to the reference's table, not the shadcn `table` primitive. A key/value block of three rows is a `Card` with a grid, not a data grid.
+
 **Imagery does not flip.** A primitive or composition carrying a photo or a product screenshot keeps its surface literal (`bg-white text-neutral-900`) and takes only tokens that read the same in both modes: the picture is part of the picture, not the chrome. A `.dark` value that inverts a chip or a label (a plum chip that goes white) is caught by reading the showcase in both modes before Phase 4, not by the iso page.
 
 Edit with a guard so a silent no-op is impossible: an `Edit` whose old string is the full class string, or a script with `assert old in source`. A variant added in the middle of a CVA map carries its trailing comma; run the seam tests right after the batch, since the guard proves the replacement landed, not that the file still parses.
 
 ## Seam tests
 
-One small test file per restyled primitive that exports its CVA: assert the class strings, not the DOM.
+One small test file per skinned primitive that exports its CVA: assert the class strings, not the DOM.
 
 ```ts
 expect(buttonVariants({ variant: "secondary" })).toContain("border-border");
@@ -45,17 +47,12 @@ A project that ships to production and scans its bundle for devtools strings get
 
 ## Screenshots
 
-Dev server on a port nobody else uses (in a worktree, never the main checkout's port: pass `--port <n> --strictPort`). Capture at 1440 wide, light then dark, top and bottom, plus the dialog open. With the theme in the URL, headless Chrome does it without a browser tool:
-
-```
-"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars --disable-gpu --force-device-scale-factor=1 --window-size=1440,2300 --virtual-time-budget=4000 --screenshot=<dir>/light.png "http://localhost:<port>/?page=primitives&theme=light"
-```
+Dev server on a port nobody else uses (in a worktree, never the main checkout's port: pass `--port <n> --strictPort`). Capture at 1440 wide, light then dark, top and bottom, plus the dialog open. With the theme in the URL, headless Chrome does it without a browser tool: the fallback command in [capture.md](capture.md) with `--window-size=1440,2300` on `http://localhost:<port>/?page=primitives&theme=light`.
 
 `agent-browser` (open, eval, screenshot) covers the dialog and hover states. Hide devtools overlays first. Keep PNGs under `.scratch/design-check/primitives/`, read each one and fix what it shows in one batch, recapture once; JPEGs of the final pass go to `docs/design/screenshots/`.
 
 The ledger gets the images. On GitHub the API cannot attach files: commit the JPEGs and link them raw (`https://raw.githubusercontent.com/<owner>/<repo>/<branch>/<path>`) in a two-column light/dark table on the issue comment.
 
-## Done
+## Ledger entry
 
-- Every existing screen renders in both modes; typecheck and the full test suite are green; the light and dark screenshots are read and nothing in them contradicts DESIGN.md.
-- Ledger entry: installed (with the one-line reason for any new dependency), restyled (per primitive, the reference values applied), new compositions, the default swaps, what keeps its registry look until a page uses it, and the screenshot table.
+Installed (with the one-line reason for any new dependency), skinned (per primitive, the reference values applied), new compositions, the default swaps, what keeps its registry look until a page uses it, and the screenshot table.

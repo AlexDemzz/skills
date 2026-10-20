@@ -20,14 +20,12 @@ Open the reference render beside you and write the bill of materials: every regi
 Screenshot light and dark at the reference's size, save to `.scratch/design-check/<page-slug>/`, and read each beside its render. Walk the bill of materials region by region and write every deviation down: colour, size, spacing, radius, weight, state. Each deviation gets one of two fates:
 
 1. **A primitive changes**: the page exposed a missing variant, a wrong size, a wrong default. Fix it in the components directory, extend the seam test, note it under *primitives that had to change*.
-2. **A consumer override is recorded**: the reference does something the design system forbids for everyone else (a provider brand colour on a chip, a key/value block laid out as a card grid). Write the class, the reason, and the rule you propose for the ADR.
+2. **A consumer override is recorded**: the reference does something the design system forbids for everyone else (a provider brand colour on a chip, a key/value block laid out as a card grid). Write the class, the reason, and the rule you propose.
 
-**Imagery does not flip.** A surface the reference keeps white in dark mode (pills on a photo band, a preview inside an image) is fate 1: the fix belongs in the primitive ([primitives.md](primitives.md)), never in a `dark:` class on the page.
+A surface the reference keeps white in dark mode (pills on a photo band, a preview inside an image) is fate 1, by *Imagery does not flip* in [primitives.md](primitives.md).
 
 Observations where the reference disagrees with DESIGN.md (a red count pill where DESIGN.md says orange) are noted, not acted on: DESIGN.md is the authority once Phase 1 sampled it.
 
-## Done
+## Ledger entry
 
-- The page and the render sit side by side in light and dark and read as the same screen.
-- Ledger entry: the verdict (yes, or what is still missing), the primitives that had to change (cherry-picked onto the primitives branch when there is one), the consumer overrides with their proposed rule, the deviations noted and not acted on, what was not covered (mobile, collapsed sidebar).
-- The prototype branch holds the page; the primitive fixes reach the main line.
+The verdict (yes, or what is still missing), the primitives that had to change (cherry-picked onto the primitives branch when there is one), the consumer overrides with their proposed rule, the deviations noted and not acted on, what was not covered (mobile, collapsed sidebar). The prototype branch holds the page.

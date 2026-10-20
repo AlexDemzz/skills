@@ -31,14 +31,14 @@ Pull the computed truth the DOM gives for free with `agent-browser eval "<js>"`:
 
 ## Sample exact pixels
 
-Colours are never eyeballed. With ImageMagick (`magick`), on each render:
+Every colour is a sampled pixel. With ImageMagick (`magick`), on each render:
 
 - Point samples for fills: `magick "$f" -format "%[hex:p{$x,$y}]" info:` on labelled points (`page-bg`, `sidebar-bg`, `card-bg`, `card-border`, `nav-active`, `btn-primary-fill`, `btn-primary-text`, `badge-green-wash`, `toggle-on`, `focus-halo`…). If the image was displayed to you scaled, multiply your coordinates by the ratio the Read tool reported.
 - Dominant colour of a crop for fills and hairlines: `magick "$f" -crop ${w}x${h}+${x}+${y} +repage -format %c histogram:info:- | sort -rn | head -3`.
 - Text colour: crop a word and take the darkest (light mode) or lightest (dark mode) entries of a 12-line histogram, which separates anti-aliased ink from its background.
 - Shadows: sample a vertical run of pixels under a card edge; a flat design shows the background colour immediately.
 
-The brand's famous hex is not automatically the primary: it is often a pressed state or a band behind a section. Take the live computed style of the actual primary button (`agent-browser get styles "<selector>"`) and let that decide. Slack's primary button is `#611F69`; the `#4A154B` everyone quotes is its pressed state and its dark band. Record the choice as an assumption in the ledger.
+The brand's famous hex is not automatically the primary: it is often a pressed state or a band behind a section. Take the live computed style of the actual primary button (`agent-browser get styles "<selector>"`) and let that decide. Slack's primary button is `#611F69`; the `#4A154B` everyone quotes is its pressed state and its dark band. When that button is ink or white, the brand hue lands on the one surface the reference paints with it (a lime brand on an ink-button reference goes to `--sidebar-primary`, the avatar) and `--primary` stays ink. A new colour variable is added only for a hue shadcn has no slot for (status tones). Record the choice in the ledger.
 
 Run one `LIGHT` block and one `DARK` block. Sizes (font sizes, row heights, paddings, radii) are measured from the renders with the crop tool and are **estimates**: say so under `source`.
 
@@ -75,7 +75,7 @@ shadcnMapping:              # light / dark pair for every variable the css file 
 ---
 ```
 
-`shadcnMapping` is the block Phase 2 runs on: every variable the project's css file declares in `:root` gets a pair, the grilling's accent decision fixes `--primary` and where the brand hue goes, new tones take a `--color-<name>` key, and a slot with no reference evidence (`--chart-3..5`) takes the reference's neutrals with a comment saying so.
+`shadcnMapping` is the block Phase 2 runs on: every variable the project's css file declares in `:root` gets a pair, the primary button fixes `--primary` and where the brand hue goes (see [Sample exact pixels](#sample-exact-pixels)), new tones take a `--color-<name>` key, and a slot with no reference evidence (`--chart-3..5`) takes the reference's neutrals with a comment saying so.
 
 The body carries what a later phase needs to decide a class, under these headings: **Overview** (the reference in one paragraph), **Colour** (which surface each tonal step is used for, the named rules: signal-only colour, wash pairing), **Typography** (the weights in use and where), **Shape and depth** (radius families, shadows or their absence), **Layout** (sidebar width, row heights, header height, content max-width), **Components** (sizes and states of buttons, inputs, rows, badges), **States** (focus, hover, active, disabled), **Do / Don't**.
 
