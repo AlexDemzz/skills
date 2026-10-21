@@ -1,5 +1,5 @@
 ---
-name: skin-shadcn
+name: design-to-shadcn
 description: Skin a shadcn + Tailwind v4 project's primitives from a website or screenshots — DESIGN.md from sampled pixels, tokens, skinned primitives, then an iso page that proves the skin.
 argument-hint: <url | image paths | "reference already in DESIGN.md"> [page to rebuild iso]
 disable-model-invocation: true
