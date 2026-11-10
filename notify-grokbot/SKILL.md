@@ -39,3 +39,5 @@ GROKBOT_WEBHOOK_AUTH="..."
 ```
 
 Never read, print, edit or commit its values. While it is missing or still holds the `PASTE_` placeholders, the script warns and sends nothing.
+
+To fill it, Alexandre runs the setup wizard in his own terminal (it is interactive, so never run it yourself): `scripts/setup-webhook`. It asks for both values with hidden input, writes the file at mode 600, and can send one test message.
