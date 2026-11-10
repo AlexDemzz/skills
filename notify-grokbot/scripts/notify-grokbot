@@ -32,8 +32,6 @@ fi
   warn "$not_configured"
 command -v python3 >/dev/null || warn "python3 not found, nothing sent"
 
-from=claude-code
-[ -n "${T3CODE_THREAD_ID:-}" ] && from=t3code
 toplevel=$(git rev-parse --show-toplevel 2>/dev/null) || toplevel=$PWD
 project=$(basename "$toplevel")
 branch=$(git branch --show-current 2>/dev/null || true)
@@ -42,7 +40,7 @@ body=$(python3 -I -c '
 import json, sys
 f, p, b, s, m, *links = sys.argv[1:]
 print(json.dumps({"from": f, "project": p, "branch": b, "status": s, "message": m, "links": links}))
-' "$from" "$project" "$branch" "$status" "$message" "$@") || warn "failed to build JSON body, nothing sent"
+' "claude-code" "$project" "$branch" "$status" "$message" "$@") || warn "failed to build JSON body, nothing sent"
 
 # URL and auth go through a curl config on a pipe so they never appear in the process list.
 curl_escape() { local s=${1//\\/\\\\}; printf '%s' "${s//\"/\\\"}"; }
