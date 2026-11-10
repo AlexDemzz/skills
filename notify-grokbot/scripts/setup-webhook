@@ -200,18 +200,39 @@ finish() {
 
 run_wizard() {
 
-TOTAL_STAGES=3
+TOTAL_STAGES=4
 ENV_FILE="$HOME/.config/grokbot/webhook.env"
 mkdir -p "$(dirname "$ENV_FILE")"
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+SKILL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+ROUTINE_DOC="$SKILL_DIR/reference/grokbot-routine.md"
 
 banner "Grok Bot webhook setup"
 
+stage "Create the Grok Bot routine"
+say "Grok Bot needs a routine with a webhook trigger to receive agent messages."
+if confirm "Already have that routine (with a Webhook section)?"; then
+  note "Skipping creation."
+else
+  prompt=$(awk '/^```text$/{f=1;next} /^```$/{if(f)exit} f' "$ROUTINE_DOC")
+  if { command -v pbcopy >/dev/null && printf '%s' "$prompt" | pbcopy; } ||
+     { command -v wl-copy >/dev/null && printf '%s' "$prompt" | wl-copy; } ||
+     { command -v xclip >/dev/null && printf '%s' "$prompt" | xclip -selection clipboard; } ||
+     { command -v clip.exe >/dev/null && printf '%s' "$prompt" | clip.exe; }; then
+    printf '  %s✓ copied%s the routine prompt to your clipboard\n' "$GREEN" "$RESET"
+  else
+    warn "couldn't reach the clipboard; copy the prompt from $ROUTINE_DOC"
+  fi
+  step "Open the Grok Bot desktop app and go to your Bot's chat."
+  step "Paste the prompt and send it."
+  step "Wait for the \"Created routine\" line in the chat."
+fi
+pause "Routine ready? Press Enter"
+
 stage "Webhook URL"
-say "Fill $ENV_FILE so coding agents can message Grok Bot."
-step "In Grok Bot, open the routine \"Messages de Claude Code / T3\"."
+step "In the Grok Bot desktop app, open the routine (click the chip on the"
+say "  \"Created routine\" line, or find it in your Bot's Routines list)."
 step "Under Webhook, click the copy icon on the \"POST to\" row (https://…)."
-note "Input is hidden; nothing is printed."
+note "The mobile apps don't show the webhook fields; use desktop. Input is hidden."
 while :; do
   ask_secret GROKBOT_WEBHOOK_URL "Paste the POST to URL:"
   [[ "$GROKBOT_WEBHOOK_URL" == https://* && "$GROKBOT_WEBHOOK_URL" != *PASTE_* ]] && break
@@ -221,7 +242,7 @@ write_env GROKBOT_WEBHOOK_URL "$GROKBOT_WEBHOOK_URL"
 pause
 
 stage "Authorization header"
-step "Same panel: click the copy icon on the \"header\" row."
+step "Same Webhook section: click the copy icon on the \"header\" row."
 note "Copied the \"key\" row instead? Fine, \"Bearer \" is added for you."
 while :; do
   ask_secret GROKBOT_WEBHOOK_AUTH "Paste the header value:"
@@ -237,7 +258,7 @@ pause
 stage "Test message"
 say "Send one real test ping; Grok Bot should say a test message arrived."
 if confirm "Send the test message now?"; then
-  err=$("$SCRIPT_DIR/notify-grokbot" info "Test ping from the notify-grokbot setup wizard." 2>&1 >/dev/null)
+  err=$("$SKILL_DIR/scripts/notify-grokbot" info "Test ping from the notify-grokbot setup wizard." 2>&1 >/dev/null)
   if [[ -z "$err" ]]; then
     printf '  %s✓ sent%s check your Grok Bot chat\n' "$GREEN" "$RESET"
   else
