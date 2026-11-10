@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Usage: notify-grokbot <done|blocked|question|info> <message> [link...]
+# Never fails the caller: always exits 0.
+
+warn() { echo "notify-grokbot: $*" >&2; exit 0; }
+
+[ $# -ge 2 ] || warn "usage: notify-grokbot <done|blocked|question|info> <message> [link...]"
+status=$1 message=$2
+shift 2
+case "$status" in done|blocked|question|info) ;; *) warn "invalid status '$status'" ;; esac
+
+env_file="$HOME/.config/grokbot/webhook.env"
+[ -r "$env_file" ] || warn "$env_file missing, nothing sent"
+# shellcheck disable=SC1090
+. "$env_file"
+case "${GROKBOT_WEBHOOK_URL:-}${GROKBOT_WEBHOOK_AUTH:-}" in
+  "" | *PASTE_*) warn "webhook not configured in $env_file, nothing sent" ;;
+esac
+command -v python3 >/dev/null || warn "python3 not found, nothing sent"
+
+from=claude-code
+[ -n "${T3CODE_THREAD_ID:-}" ] && from=t3code
+toplevel=$(git rev-parse --show-toplevel 2>/dev/null) || toplevel=$PWD
+project=$(basename "$toplevel")
+branch=$(git branch --show-current 2>/dev/null || true)
+
+body=$(python3 -I -c '
+import json, sys
+f, p, b, s, m, *links = sys.argv[1:]
+print(json.dumps({"from": f, "project": p, "branch": b, "status": s, "message": m, "links": links}))
+' "$from" "$project" "$branch" "$status" "$message" "$@") || warn "failed to build JSON body, nothing sent"
+
+# URL and auth go through a curl config on a pipe so they never appear in the process list.
+curl_escape() { local s=${1//\\/\\\\}; printf '%s' "${s//\"/\\\"}"; }
+curl -sS -o /dev/null --max-time 10 --fail \
+  -K <(printf 'url = "%s"\nheader = "Authorization: %s"\n' \
+    "$(curl_escape "$GROKBOT_WEBHOOK_URL")" "$(curl_escape "$GROKBOT_WEBHOOK_AUTH")") \
+  -H 'Content-Type: application/json' --data-binary "$body" 2>/dev/null ||
+  warn "request to Grok Bot webhook failed"
+exit 0
