@@ -201,8 +201,10 @@ finish() {
 run_wizard() {
 
 TOTAL_STAGES=4
-ENV_FILE="$HOME/.config/grokbot/webhook.env"
-mkdir -p "$(dirname "$ENV_FILE")"
+ENV_FILE="${GROKBOT_CONFIG_FILE:-${XDG_CONFIG_HOME:-$HOME/.config}/grokbot/webhook.env}"
+ENV_DIR=$(dirname "$ENV_FILE")
+mkdir -m 700 -p "$ENV_DIR"
+chmod 700 "$ENV_DIR"
 SKILL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 ROUTINE_DOC="$SKILL_DIR/reference/grokbot-routine.md"
 
@@ -229,6 +231,9 @@ fi
 pause "Routine ready? Press Enter"
 
 stage "Webhook URL"
+if git -C "$ENV_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  warn "$ENV_DIR is inside a git repo: add $(basename "$ENV_FILE") to its .gitignore."
+fi
 step "In the Grok Bot desktop app, open the routine (click the chip on the"
 say "  \"Created routine\" line, or find it in your Bot's Routines list)."
 step "Under Webhook, click the copy icon on the \"POST to\" row (https://…)."

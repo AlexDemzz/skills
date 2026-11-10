@@ -32,3 +32,5 @@ The message leaves the session and lands in a chat. Keep it public-safe: summari
 ## Not configured
 
 The script always exits 0. A `notify-grokbot:` warning on stderr means nothing was sent: tell the user once to run `scripts/setup-webhook` from this skill's folder in their own terminal, then carry on with the task. The wizard is interactive: it has them create the Grok Bot routine from [reference/grokbot-routine.md](reference/grokbot-routine.md), stores the webhook in `~/.config/grokbot/webhook.env`, and sends a test. That file holds the user's secrets, so the wizard is its only writer.
+
+`GROKBOT_WEBHOOK_URL` and `GROKBOT_WEBHOOK_AUTH`, when both are set in the environment, override the file (CI, containers). Exports in shell rc files never reach agents started from GUI apps such as T3 Code, so the wizard's file is the supported setup.

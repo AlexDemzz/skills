@@ -9,13 +9,27 @@ status=$1 message=$2
 shift 2
 case "$status" in done|blocked|question|info) ;; *) warn "invalid status '$status'" ;; esac
 
-env_file="$HOME/.config/grokbot/webhook.env"
-[ -r "$env_file" ] || warn "$env_file missing, nothing sent"
-# shellcheck disable=SC1090
-. "$env_file"
-case "${GROKBOT_WEBHOOK_URL:-}${GROKBOT_WEBHOOK_AUTH:-}" in
-  "" | *PASTE_*) warn "webhook not configured in $env_file, nothing sent" ;;
-esac
+env_file="${GROKBOT_CONFIG_FILE:-${XDG_CONFIG_HOME:-$HOME/.config}/grokbot/webhook.env}"
+not_configured="set GROKBOT_WEBHOOK_URL and GROKBOT_WEBHOOK_AUTH, or run scripts/setup-webhook to fill $env_file; nothing sent"
+
+# Reads KEY from the env file without executing it; undoes the wizard's single quoting.
+read_value() {
+  local line value sq="'\\''"
+  line=$(grep -E "^$1=" "$env_file" | tail -n1) || return 0
+  value=${line#*=}
+  if [[ $value == \'*\' ]]; then value=${value:1:${#value}-2}; value=${value//"$sq"/\'}
+  elif [[ $value == \"*\" ]]; then value=${value:1:${#value}-2}; fi
+  printf '%s' "$value"
+}
+
+# Env vars win only as a complete pair, so the URL and the key never come from different places.
+if [[ -z "${GROKBOT_WEBHOOK_URL:-}" || -z "${GROKBOT_WEBHOOK_AUTH:-}" ]]; then
+  [ -r "$env_file" ] || warn "$not_configured"
+  GROKBOT_WEBHOOK_URL=$(read_value GROKBOT_WEBHOOK_URL)
+  GROKBOT_WEBHOOK_AUTH=$(read_value GROKBOT_WEBHOOK_AUTH)
+fi
+[[ -z "$GROKBOT_WEBHOOK_URL" || -z "$GROKBOT_WEBHOOK_AUTH" || "$GROKBOT_WEBHOOK_URL$GROKBOT_WEBHOOK_AUTH" == *PASTE_* ]] &&
+  warn "$not_configured"
 command -v python3 >/dev/null || warn "python3 not found, nothing sent"
 
 from=claude-code
