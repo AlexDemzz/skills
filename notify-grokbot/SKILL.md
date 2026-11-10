@@ -1,43 +1,34 @@
 ---
 name: notify-grokbot
-description: Send a short message to the user's Grok Bot assistant. Use when you finish a meaningful task, get blocked, or need a decision from the user.
+description: Report a task outcome to the user's Grok Bot assistant. Use when a meaningful task is done, you are blocked, or you need the user's decision.
 argument-hint: <done|blocked|question|info> "<summary>" [link...]
 ---
 
-Tell the user's Grok Bot assistant how a task ended, so they hear about it without watching the session.
+Report a task **outcome** to the user's Grok Bot assistant, so they hear about it away from the session.
 
 ## Send
 
-Run the script that ships with this skill, from this skill's folder:
+When the task reaches an outcome, run once, from this skill's folder:
 
 ```sh
 scripts/notify-grokbot <status> "<one or two sentence summary>" [PR or URL ...]
 ```
 
-| Status     | When                                         |
-| ---------- | -------------------------------------------- |
-| `done`     | A meaningful task is finished.               |
-| `blocked`  | You cannot go on without outside help.       |
-| `question` | You need a decision from the user.           |
-| `info`     | Anything else worth knowing, used sparingly. |
+| Status     | Outcome                                    |
+| ---------- | ------------------------------------------ |
+| `done`     | A meaningful task is finished.             |
+| `blocked`  | You cannot go on without outside help.     |
+| `question` | You need a decision from the user.         |
+| `info`     | Anything else worth an interruption.       |
 
-The script adds where it ran from: `from` (`claude-code`, or `t3code` inside a T3 Code thread), `project` (git toplevel or current folder name) and `branch`. Pass PR or deploy URLs as extra arguments; they become `links`.
+The script already adds `from`, `project` and `branch`: spend the summary on what happened and what the user must decide. Extra arguments become `links`.
 
-## Rules
+Done when each outcome has exactly one message. A new outcome (blocked, later done) earns a new message; progress earns none.
 
-- One message per task outcome. No progress updates, no follow-up to say the same thing again.
-- Never put secrets, tokens, credentials or private customer data in the message or the links.
-- The script always exits 0 and never fails your task. A warning on stderr means nothing was sent; mention it to the user once and carry on.
+## Content
 
-## Setup
+The message leaves the session and lands in a chat. Keep it public-safe: summaries and links only, with secrets, tokens, credentials and customer data left out.
 
-The webhook config lives in `~/.config/grokbot/webhook.env` (mode 600):
+## Not configured
 
-```sh
-GROKBOT_WEBHOOK_URL="..."
-GROKBOT_WEBHOOK_AUTH="..."
-```
-
-Never read, print, edit or commit its values. While it is missing or still holds `PASTE_` placeholders, the script warns and sends nothing.
-
-To set it up, the user runs `scripts/setup-webhook` in their own terminal. It is interactive, so never run it yourself; point the user to it. It has them create the Grok Bot routine from a prompt (see [reference/grokbot-routine.md](reference/grokbot-routine.md)), then captures the webhook URL and header with hidden input, writes the file at mode 600, and can send one test message.
+The script always exits 0. A `notify-grokbot:` warning on stderr means nothing was sent: tell the user once to run `scripts/setup-webhook` from this skill's folder in their own terminal, then carry on with the task. The wizard is interactive: it has them create the Grok Bot routine from [reference/grokbot-routine.md](reference/grokbot-routine.md), stores the webhook in `~/.config/grokbot/webhook.env`, and sends a test. That file holds the user's secrets, so the wizard is its only writer.
