@@ -230,35 +230,45 @@ else
 fi
 pause "Routine ready? Press Enter"
 
+# webhook_panel ROW draws the routine's Webhook section with an arrow on ROW.
+webhook_panel() {
+  local row
+  printf '\n  %sWebhook%s\n' "$DIM" "$RESET"
+  for row in "POST to:https://…" "key:•••••••••" "header:•••••••••"; do
+    if [[ "${row%%:*}" == "$1" ]]; then
+      printf '    %s%-8s %s  ⧉  ← copy%s\n' "$BOLD$GREEN" "${row%%:*}" "${row#*:}" "$RESET"
+    else
+      printf '    %s%-8s %s  ⧉%s\n' "$DIM" "${row%%:*}" "${row#*:}" "$RESET"
+    fi
+  done
+  printf '\n'
+}
+
 stage "Webhook URL"
 if git -C "$ENV_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   warn "$ENV_DIR is inside a git repo: add $(basename "$ENV_FILE") to its .gitignore."
 fi
-step "In the Grok Bot desktop app, open the routine (click the chip on the"
-say "  \"Created routine\" line, or find it in your Bot's Routines list)."
-step "Under Webhook, click the copy icon on the \"POST to\" row (https://…)."
-note "The mobile apps don't show the webhook fields; use desktop. Input is hidden."
+step "Grok Bot desktop app → open the routine → Webhook section."
+webhook_panel "POST to"
 while :; do
-  ask_secret GROKBOT_WEBHOOK_URL "Paste the POST to URL:"
+  ask_secret GROKBOT_WEBHOOK_URL "Paste POST to (hidden):"
   [[ "$GROKBOT_WEBHOOK_URL" == https://* && "$GROKBOT_WEBHOOK_URL" != *PASTE_* ]] && break
-  warn "That doesn't look like the https:// URL from \"POST to\". Try again."
+  warn "Expected the https:// URL from POST to."
 done
 write_env GROKBOT_WEBHOOK_URL "$GROKBOT_WEBHOOK_URL"
-pause
 
 stage "Authorization header"
-step "Same Webhook section: click the copy icon on the \"header\" row."
-note "Copied the \"key\" row instead? Fine, \"Bearer \" is added for you."
+step "Same Webhook section."
+webhook_panel "header"
 while :; do
-  ask_secret GROKBOT_WEBHOOK_AUTH "Paste the header value:"
+  ask_secret GROKBOT_WEBHOOK_AUTH "Paste header (hidden):"
   GROKBOT_WEBHOOK_AUTH="${GROKBOT_WEBHOOK_AUTH#Authorization: }"
   [[ -n "$GROKBOT_WEBHOOK_AUTH" && "$GROKBOT_WEBHOOK_AUTH" != *PASTE_* ]] && break
-  warn "Empty or still the placeholder. Try again."
+  warn "Expected the header value."
 done
 [[ "$GROKBOT_WEBHOOK_AUTH" == Bearer\ * ]] || GROKBOT_WEBHOOK_AUTH="Bearer $GROKBOT_WEBHOOK_AUTH"
 write_env GROKBOT_WEBHOOK_AUTH "$GROKBOT_WEBHOOK_AUTH"
 chmod 600 "$ENV_FILE"
-pause
 
 stage "Test message"
 say "Send one real test ping; Grok Bot should say a test message arrived."
