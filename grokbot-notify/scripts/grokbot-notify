@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Usage: notify-grokbot <done|blocked|question|info> <message> [link...]
+# Usage: grokbot-notify <done|blocked|question|info> <message> [link...]
 # Never fails the caller: always exits 0.
 
-warn() { echo "notify-grokbot: $*" >&2; exit 0; }
+warn() { echo "grokbot-notify: $*" >&2; exit 0; }
 
-[ $# -ge 2 ] || warn "usage: notify-grokbot <done|blocked|question|info> <message> [link...]"
+[ $# -ge 2 ] || warn "usage: grokbot-notify <done|blocked|question|info> <message> [link...]"
 status=$1 message=$2
 shift 2
 case "$status" in done|blocked|question|info) ;; *) warn "invalid status '$status'" ;; esac

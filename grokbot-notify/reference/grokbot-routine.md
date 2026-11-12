@@ -1,6 +1,6 @@
 # Grok Bot routine
 
-The receiving end of `scripts/notify-grokbot`: a Grok Bot routine with a webhook trigger. `scripts/setup-webhook` copies the prompt below to the clipboard; paste it into your Grok Bot chat and the Bot creates the routine.
+The receiving end of `scripts/grokbot-notify`: a Grok Bot routine with a webhook trigger. `scripts/setup-webhook` copies the prompt below to the clipboard; paste it into your Grok Bot chat and the Bot creates the routine.
 
 ## Prompt
 

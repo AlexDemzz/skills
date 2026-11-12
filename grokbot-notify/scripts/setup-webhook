@@ -273,15 +273,15 @@ chmod 600 "$ENV_FILE"
 stage "Test message"
 say "Send one real test ping; Grok Bot should say a test message arrived."
 if confirm "Send the test message now?"; then
-  err=$("$SKILL_DIR/scripts/notify-grokbot" info "Test ping from the notify-grokbot setup wizard." 2>&1 >/dev/null)
+  err=$("$SKILL_DIR/scripts/grokbot-notify" info "Test ping from the grokbot-notify setup wizard." 2>&1 >/dev/null)
   if [[ -z "$err" ]]; then
     printf '  %s✓ sent%s check your Grok Bot chat\n' "$GREEN" "$RESET"
   else
-    warn "${err#notify-grokbot: }"
+    warn "${err#grokbot-notify: }"
     SKIPPED+=("Test message failed: re-check both values, then re-run this wizard")
   fi
 else
-  SKIPPED+=("Test message: run scripts/notify-grokbot info \"test\" when ready")
+  SKIPPED+=("Test message: run scripts/grokbot-notify info \"test\" when ready")
 fi
 pause
 
